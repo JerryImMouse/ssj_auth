@@ -3,8 +3,15 @@ const database = require("../database/sqlite");
 const logger = require("../utilities/logger");
 const {discordLinkTemplate, clientId} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
+const {checkAccess} = require("../utilities/tokenutils");
 
 router.get("/check", async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).send("Unauthorized");
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).send("Unauthorized");
+
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user id provided" });
     }
@@ -27,6 +34,12 @@ router.get("/check", async (req, res) => {
 
 // generate auth link
 router.get('/link', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).send("Unauthorized");
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).send("Unauthorized");
+
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
     }
@@ -38,6 +51,12 @@ router.get('/link', async (req, res) => {
 });
 
 router.get('/roles', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).send("Unauthorized");
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).send("Unauthorized");
+
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
     }

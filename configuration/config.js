@@ -6,6 +6,8 @@ const redirectUri = process.env.REDIRECT_URI;
 
 const discordLinkTemplate = process.env.DISCORD_AUTH_LINK_TEMPLATE;
 
+const api_key = process.env.API_KEY;
+
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 
@@ -15,5 +17,6 @@ module.exports = {
     redirectUri,
     clientId,
     clientSecret,
-    discordLinkTemplate
+    discordLinkTemplate,
+    api_key
 }
