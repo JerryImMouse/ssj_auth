@@ -1,0 +1,10 @@
+# Ignore node modules
+node_modules
+
+# ignore idea files
+.idea
+
+# Ignore env and all databases
+.env
+*.db
+*.sqlite
