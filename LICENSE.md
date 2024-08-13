@@ -2,7 +2,7 @@ All rights reserved.
 
 Copyright (c) 2024 JerryImMouse
 
-This source code is the exclusive of TornadoTech (Maltsev Daniil), JerryImMouse, LordVladimer (Valdis Fedorov) and is protected by copyright law.
+This source code is the exclusive of JerryImMouse and is protected by copyright law.
 You granted no rights or permissions to use, modify, distribute, sublicense,
 or reproduce this source code in any form, in whole or in part,
 without the express written consent of JerryImMouse.
