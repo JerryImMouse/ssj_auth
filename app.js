@@ -15,6 +15,8 @@ const express = require('express');
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(compression()); // Compress all routes
 app.use(
     helmet({
@@ -22,9 +24,9 @@ app.use(
             directives: {
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
-                styleSrc: ["'self'", "cdn.jsdelivr.net"],
+                styleSrc: ["'self'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
                 imgSrc: ["'self'", "data:"],
-                fontSrc: ["'self'", "cdn.jsdelivr.net"],
+                fontSrc: ["'self'", "cdn.jsdelivr.net", "fonts.gstatic.com"],
             },
         },
     })
