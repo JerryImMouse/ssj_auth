@@ -2,7 +2,7 @@ const router = require("express").Router();
 const path = require('path');
 
 const logger = require('../utilities/logger.js');
-const {insertUser} = require('../database/sqlite.js');
+const {insertUser, insertGivenUser} = require('../database/sqlite.js');
 const {exchangeCode, getDiscordIdentifyScopeUnsafe} = require("../utilities/discordhelper");
 
 router.get('/callback', async (req, res) => {
@@ -37,7 +37,9 @@ router.get('/callback', async (req, res) => {
         tokenData['access_token'], // access_token
         new Date().toISOString()); // current date time
 
-    if (result) {
+    const result1 = await insertGivenUser(userObject.user.id, req.query.state, 0);
+
+    if (result && result1) {
         res.sendFile(path.join(__dirname, '..', 'public', 'html', 'success.html'));
         return;
     }

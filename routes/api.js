@@ -4,13 +4,15 @@ const logger = require("../utilities/logger");
 const {discordLinkTemplate, clientId} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
+const path = require("path");
+const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll} = require("../database/sqlite");
 
 router.get("/check", async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user id provided" });
@@ -35,10 +37,10 @@ router.get("/check", async (req, res) => {
 // generate auth link
 router.get('/link', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
@@ -52,10 +54,10 @@ router.get('/link', async (req, res) => {
 
 router.get('/roles', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized");
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
@@ -83,6 +85,59 @@ router.get('/roles', async (req, res) => {
         logger.error(`Error retrieving roles: ${error.message}`);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
+})
+
+router.post('/given', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!req.query.userid) {
+        return res.status(400).json({ error: "No user ID provided" });
+    }
+    let given = 1;
+    if (req.query.given) {
+        given = req.query.given;
+    }
+
+    const user_id = req.query.userid;
+
+    await setGivenTo(user_id, given);
+
+    return res.status(200).send("SUCCESS");
+})
+
+router.get('/is_given', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!req.query.userid) {
+        return res.status(400).json({ error: "No user ID provided" });
+    }
+
+    const user_id = req.query.userid;
+
+    const user = await getGivenBySS14Id(user_id);
+
+    var status = user.is_given === 1 ? 200 : 204;
+    res.status(status).send("SUCCESS");
+})
+
+router.post('/wipe_given', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    await setGivenToZeroAll();
+
+    return res.status(200).send("SUCCESS");
 })
 
 module.exports = router;

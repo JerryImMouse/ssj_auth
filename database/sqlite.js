@@ -14,6 +14,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 const dbInit = () => {
     createUsersTable();
+    createGivenTable();
 };
 
 const createUsersTable = () => {
@@ -40,6 +41,26 @@ const createUsersTable = () => {
     });
 };
 
+const createGivenTable = () => {
+    const createGivenSQL = `
+        CREATE TABLE IF NOT EXISTS "given" (
+            "id" INTEGER NOT NULL UNIQUE,
+            "discord_id" TEXT NOT NULL UNIQUE,
+            "ss14_user_id" TEXT NOT NULL UNIQUE CHECK(is_given IN (0, 1)),
+            "is_given" INTEGER NOT NULL CHECK(is_given IN (0, 1)),
+            PRIMARY KEY("id" AUTOINCREMENT)
+        );
+    `;
+
+    db.run(createGivenSQL, (err) => {
+        if (err) {
+            logger.error(`Error creating given table ${err.message}`);
+            return;
+        }
+        logger.info('Given table created successfully');
+    })
+};
+
 const insertUser = async (discord_name, discord_id, ss14_userid, refresh_token, access_token, last_refreshed_time) => {
     const insertSQL = `
         INSERT INTO users (discord_name, discord_id, ss14_userid, refresh_token, access_token, last_refreshed_time)
@@ -49,7 +70,7 @@ const insertUser = async (discord_name, discord_id, ss14_userid, refresh_token, 
         db.run(insertSQL, [discord_name, discord_id, ss14_userid, refresh_token, access_token, last_refreshed_time], (err) => {
             if (err) {
                 logger.error(`Error caught while inserting user into the table: ${err.message}`);
-                resolve(false);
+                reject(err);
             }
 
             logger.info('New user inserted successfully.');
@@ -72,6 +93,21 @@ const getUserById = async (id) => {
         });
     });
 };
+
+const getAllUsers = async () => {
+    const selectSQL = `SELECT * FROM users`;
+    return new Promise((resolve, reject) => {
+        db.all(selectSQL, (err, rows) => {
+            if (err) {
+                logger.error(`Error caught while selecting all users from the table: ${err.message}`);
+                reject(err);
+                return;
+            }
+            logger.info("Successfully retrieved users from database");
+            resolve(rows);
+        })
+    })
+}
 
 const getUserByDiscordId = async (discordId) => {
     const selectSQL = `SELECT * FROM users WHERE discord_id = ?`;
@@ -145,6 +181,103 @@ const deleteUser = async (id) => {
     });
 };
 
+const getAllGiven = async () => {
+    const selectSQL = `SELECT * FROM given`;
+    return new Promise((resolve, reject) => {
+        db.all(selectSQL, (err, rows) => {
+            if (err) {
+                logger.error(`Error caught while selecting all givens from the table: ${err.message}`);
+                reject(err);
+                return;
+            }
+            logger.info("Successfully retrieved givens from database");
+            resolve(rows);
+        })
+    })
+}
+
+const getGivenBySS14Id = async (ss14_id) => {
+    const selectSQL = `SELECT * FROM given WHERE ss14_user_id = ?`
+    return new Promise((resolve, reject) => {
+        db.get(selectSQL, [ss14_id], (err, row) => {
+            if (err) {
+                logger.error(`Error caught while selecting given from the table: ${err.message}`);
+                reject(err);
+                return;
+            }
+            logger.info("Successfully retrieved given from database");
+            resolve(row);
+        })
+    })
+}
+
+const insertGivenUser = async (discord_id, ss14_uid, given = 0) => {
+    const insertSQL = `
+        INSERT INTO given (discord_id, ss14_user_id, is_given)
+        VALUES (?, ?, ?)
+    `;
+    return new Promise((resolve, reject) => {
+        db.run(insertSQL, [discord_id, ss14_uid, given], (err) => {
+            if (err) {
+                logger.error(`Error caught while inserting given into the table: ${err.message}`);
+                reject(err);
+            }
+
+            logger.info('New given inserted successfully.');
+            resolve(true);
+        });
+    });
+}
+
+const updateGivenUser = async (discord_id, given, ss14_user_id) => {
+    const updateSQL = `
+        UPDATE given
+        SET discord_id = ?, is_given = ?
+        WHERE ss14_user_id = ?
+    `;
+
+    return new Promise((resolve, reject) => {
+        db.run(updateSQL, [discord_id, given, ss14_user_id], (err) => {
+            if (err) {
+                logger.error(`Error updating given: ${err.message}`);
+                reject(false);
+                return;
+            }
+            logger.info('Successfully updated given in database');
+            resolve(true);
+        })
+    })
+}
+
+const setGivenToZeroAll = async () => {
+    const updateSQL = `UPDATE given SET is_given = 0`;
+    return new Promise((resolve, reject) => {
+        db.run(updateSQL, (err) => {
+            if (err) {
+                logger.error(`Error updating given: ${err.message}`);
+                reject(false);
+                return;
+            }
+            logger.info('Successfully updated given in database');
+            resolve(true);
+        });
+    })
+}
+const setGivenTo = async (ss14_uid, is_given) => {
+    const updateSQL = `UPDATE given SET is_given = ? WHERE ss14_user_id = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(updateSQL, [is_given, ss14_uid], (err) => {
+            if (err) {
+                logger.error(`Error updating given: ${err.message}`);
+                reject(false);
+                return;
+            }
+            logger.info('Successfully updated given in database');
+            resolve(true);
+        });
+    })
+}
+
 module.exports = {
     dbInit,
     insertUser,
@@ -153,5 +286,13 @@ module.exports = {
     updateUserByDiscordId,
     getUserById,
     getUserByDiscordId,
-    getUserBySS14Id
+    getUserBySS14Id,
+    getAllUsers,
+
+    updateGivenUser,
+    getGivenBySS14Id,
+    getAllGiven,
+    insertGivenUser,
+    setGivenToZeroAll,
+    setGivenTo
 }
