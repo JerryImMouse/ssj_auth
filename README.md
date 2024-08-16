@@ -1,7 +1,8 @@
 > [!WARNING]
 > Environment file required, here is a template for it.
 ```env
-LOCAL_PORT=YOURPORTHERE
+CLIENT_API_URL = '127.0.0.1'
+CLIENT_API_PORT = YOURPORTHERE
 
 DISCORD_API_ENDPOINT = 'https://discord.com/api/v10'
 CLIENT_ID = 'CLIENTIDHERE'

@@ -22,7 +22,7 @@ app.use('/', indexRouter);
 app.use('/api/', apiRouter)
 app.use('/auth/', authRouter);
 
-app.listen(config.port, () => {
-    logger.info(`App listening on port ${config.port}`);
+app.listen(config.port, config.host, () => {
+    logger.info(`App listening on ${config.host}:${config.port}`);
     sqliteDb.dbInit();
 });

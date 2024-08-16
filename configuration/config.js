@@ -1,6 +1,8 @@
 require("dotenv").config()
 
-const port = process.env.LOCAL_PORT || 3000;
+const port = process.env.CLIENT_API_PORT || 2424;
+const host = process.env.CLIENT_API_URL || '127.0.0.1';
+
 const discordEndPoint = process.env.DISCORD_API_ENDPOINT;
 const redirectUri = process.env.REDIRECT_URI;
 
@@ -13,6 +15,7 @@ const clientSecret = process.env.CLIENT_SECRET;
 
 module.exports = {
     port,
+    host,
     discordEndPoint,
     redirectUri,
     clientId,
