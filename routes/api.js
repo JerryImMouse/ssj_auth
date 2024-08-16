@@ -47,7 +47,7 @@ router.get('/link', async (req, res) => {
     }
 
     const userid = req.query.userid;
-    const link = `${discordLinkTemplate}?client_id=${clientId}&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A2424%2Fauth%2Fcallback&scope=identify+guilds+guilds.members.read&state=${userid}`;
+    const link = `${discordLinkTemplate}?client_id=${clientId}&response_type=code&redirect_uri=http%3A%2F%2Fstalkers14.xyz%3A2424%2Fauth%2Fcallback&scope=identify+guilds+guilds.members.read&state=${userid}`;
 
     return res.status(200).json({ link });
 });
