@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const database = require("../database/sqlite");
 const logger = require("../utilities/logger");
-const {discordLinkTemplate, clientId} = require("../configuration/config");
+const {discordLinkTemplate, clientId, redirectUri} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
@@ -48,7 +48,9 @@ router.get('/link', async (req, res) => {
 
     const userid = req.query.userid;
     const base64Userid = Buffer.from(userid).toString('base64');
-    const link = `${discordLinkTemplate}?client_id=${clientId}&response_type=code&redirect_uri=http%3A%2F%2Fstalkers14.xyz%3A2424%2Fauth%2Fcallback&scope=identify+guilds+guilds.members.read&state=${base64Userid}`;
+    const encodedUri = encodeURIComponent(redirectUri);
+
+    const link = `${discordLinkTemplate}?client_id=${clientId}&response_type=code&redirect_uri=${encodedUri}&scope=identify+guilds+guilds.members.read&state=${base64Userid}`;
 
     return res.status(200).json({ link });
 });
