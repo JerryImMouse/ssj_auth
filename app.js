@@ -17,11 +17,17 @@ const app = express();
 
 app.use(compression()); // Compress all routes
 app.use(
-    helmet.contentSecurityPolicy({
-        directives: {
-            "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+                styleSrc: ["'self'", "cdn.jsdelivr.net"],
+                imgSrc: ["'self'", "data:"],
+                fontSrc: ["'self'", "cdn.jsdelivr.net"],
+            },
         },
-    }),
+    })
 );
 
 app.use(bodyParser.urlencoded({ extended: false }))
