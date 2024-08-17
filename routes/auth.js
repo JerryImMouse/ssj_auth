@@ -40,7 +40,7 @@ router.get('/callback', async (req, res) => {
         new Date().toISOString()); // current date time
     logger.info(`Added new user with userid - ${userid}`);
 
-    const result1 = await insertGivenUser(userObject.user.id, req.query.state, 0);
+    const result1 = await insertGivenUser(userObject.user.id, userid, 0);
 
     if (result && result1) {
         res.sendFile(path.join(__dirname, '..', 'public', 'html', 'success.html'));
