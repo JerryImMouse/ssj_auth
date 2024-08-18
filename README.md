@@ -17,9 +17,10 @@ This app also supports(of course it is) token refreshing, it checks if token val
    **Query Parameters:**
 
    | Name      | Type   | Required | Description                                            |
-       |-----------|--------|----------|--------------------------------------------------------|
+   |-----------|--------|----------|--------------------------------------------------------|
    | userid    | string | Yes      | state parameter for future link, should be SS14 UserId |
    | api_token | string | Yes      | Api Token of the app for security                      |
+   
     **Response:**  
    Status Code: OK(200)
    ```json
@@ -28,7 +29,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
     }
     ```
 
-2. **Get Roles**
+3. **Get Roles**
     - `GET /api/roles`
     - **Description:** Returns user roles on specific guild
     
@@ -47,7 +48,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
     }
     ```
 
-3. **Check Auth**
+4. **Check Auth**
     - `GET /api/check`
     - **Description:** Checks if specific user is authenticated
     - **Query Parameters:**
@@ -60,7 +61,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
     Status Code: OK(200) | NotFound(404) - Depending on the result
 
 
-4. **Is Given**
+5. **Is Given**
    - `GET /api/is_given`
    - **Description:** Checks if given flag is set to 1
    - **Query Parameters:**
@@ -73,7 +74,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
    Status Code: OK(200) | No Content(204) - Depending on the result
 
 
-5. **Set Given**
+6. **Set Given**
     - `POST /api/given`
     - **Description:** Sets given flag
     - **Query Parameters:**
@@ -87,7 +88,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
    Status Code: OK(200)
 
    
-6. **Wipe Given**
+7. **Wipe Given**
     - `POST /api/wipe_given`
     - **Description:** Sets all given flags to 0, for all users
     - **Query Parameters:**
@@ -107,7 +108,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
      | Name      | Type   | Required | Description                                         |
      |-----------|--------|----------|-----------------------------------------------------|
      | state     | string | Yes      | To be decoded from base64 and represented as userid |
-     | api_token | string | Yes      | Api Token of the app for security                   |
+     | code      | string | Yes      | Discord code to exchange                            |
 
 ## Deploying
 > [!IMPORTANT]  
