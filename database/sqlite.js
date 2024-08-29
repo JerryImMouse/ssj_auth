@@ -211,6 +211,21 @@ const getGivenBySS14Id = async (ss14_id) => {
     })
 }
 
+const getGivenByDiscordId = async (discord_id) => {
+    const selectSQL = `SELECT * FROM given WHERE discord_id = ?`
+    return new Promise((resolve, reject) => {
+        db.get(selectSQL, [discord_id], (err, row) => {
+            if (err) {
+                logger.error(`Error caught while selecting given from the table: ${err.message}`);
+                reject(err);
+                return;
+            }
+            logger.info("Successfully retrieved given from database");
+            resolve(row);
+        })
+    })
+}
+
 const insertGivenUser = async (discord_id, ss14_uid, given = 0) => {
     const insertSQL = `
         INSERT INTO given (discord_id, ss14_user_id, is_given)
@@ -278,6 +293,21 @@ const setGivenTo = async (ss14_uid, is_given) => {
     })
 }
 
+const setGivenDiscordTo = async (discord_id, is_given) => {
+    const updateSQL = `UPDATE given SET is_given = ? WHERE discord_id = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(updateSQL, [is_given, discord_id], (err) => {
+            if (err) {
+                logger.error(`Error updating given: ${err.message}`);
+                reject(false);
+                return;
+            }
+            logger.info('Successfully updated given in database');
+            resolve(true);
+        });
+    })
+}
+
 module.exports = {
     dbInit,
     insertUser,
@@ -291,8 +321,10 @@ module.exports = {
 
     updateGivenUser,
     getGivenBySS14Id,
+    getGivenByDiscordId,
     getAllGiven,
     insertGivenUser,
     setGivenToZeroAll,
-    setGivenTo
+    setGivenTo,
+    setGivenDiscordTo
 }
