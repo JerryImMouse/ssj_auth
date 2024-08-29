@@ -6,7 +6,7 @@ const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
 const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
-    getUserById
+    getUserById, getUserBySS14Id
 } = require("../database/sqlite");
 
 router.get("/check", async (req, res) => {
@@ -116,7 +116,7 @@ router.get('/user', async (req, res) => {
             break;
         }
         case 'ss14': {
-            user = await getUserById(uid);
+            user = await getUserBySS14Id(uid);
             break;
         }
         default:
