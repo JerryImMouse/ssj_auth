@@ -5,7 +5,9 @@ const {discordLinkTemplate, clientId, redirectUri} = require("../configuration/c
 const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
-const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId} = require("../database/sqlite");
+const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
+    getUserById
+} = require("../database/sqlite");
 
 router.get("/check", async (req, res) => {
     if (!req.query.api_token)
@@ -24,8 +26,8 @@ router.get("/check", async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "No user found" });
         }
-
-        return res.status(200).json(user);
+        const {access_token, refresh_token, ...newUser} = user;
+        return res.status(200).json(newUser);
     }
     catch (error)
     {
@@ -88,6 +90,46 @@ router.get('/roles', async (req, res) => {
         logger.error(`Error retrieving roles: ${error.message}`);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
+})
+
+router.get('/user', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!req.query.method) {
+        return res.status(400).json({error: "Method is not provided"})
+    }
+
+    if (!req.query.id) {
+        return res.status(400).json({ error: "No user ID provided" });
+    }
+    const uid = req.query.id;
+
+    let user;
+
+    switch (req.query.method) {
+        case 'discord': {
+            user = await getUserByDiscordId(uid);
+            break;
+        }
+        case 'ss14': {
+            user = await getUserById(uid);
+            break;
+        }
+        default:
+            return res.status(400).json({error: "Invalid method passed"});
+    }
+
+    if (!user) {
+        return res.status(400).json({error: "Not Found"});
+    }
+
+    const {access_token, refresh_token, ...newUser} = user;
+
+    return res.status(200).json(newUser);
 })
 
 router.post('/given', async (req, res) => {
