@@ -60,35 +60,47 @@ This app also supports(of course it is) token refreshing, it checks if token val
     **Response:**  
     Status Code: OK(200) | NotFound(404) - Depending on the result
 
+5. **User retrieve**
+    - `GET /api/user`
+    - **Description:** Retrieves user from database by netUserId or by discordIdd
+    - **Query Parameters:**
+      
+      | Name      | Type   | Required | Description                       |
+      |-----------|--------|----------|-----------------------------------|
+      | id        | string | Yes      | Id of the player to check         |
+      | api_token | string | Yes      | Api Token of the app for security | 
+      | method    | string | Yes      | SS14 or Discord method of Id      | 
 
-5. **Is Given**
+6. **Is Given**
    - `GET /api/is_given`
    - **Description:** Checks if given flag is set to 1
    - **Query Parameters:**
 
-     | Name      | Type   | Required | Description                        |
-     |-----------|--------|----------|------------------------------------|
-     | userid    | string | Yes      | SS14 UserId of the player to check |
-     | api_token | string | Yes      | Api Token of the app for security  |
+     | Name      | Type   | Required | Description                                                 |
+     |-----------|--------|----------|-------------------------------------------------------------|
+     | userid    | string | Yes      | SS14 UserId of the player to check                          |
+     | api_token | string | Yes      | Api Token of the app for security                           |
+     | method    | string | Yes      | SS14 or Discord, influence on what id server is waiting for |
    **Response:**  
    Status Code: OK(200) | No Content(204) - Depending on the result
 
 
-6. **Set Given**
+7. **Set Given**
     - `POST /api/given`
     - **Description:** Sets given flag
-    - **Query Parameters:**
+      - **Query Parameters:**
 
-      | Name      | Type    | Required | Description                        |
-      |-----------|---------|----------|------------------------------------|
-      | userid    | string  | Yes      | SS14 UserId of the player to check |
-      | api_token | string  | Yes      | Api Token of the app for security  |
-      | given     | integer | Yes      | Flag itself, between 0 and 1       |
+        | Name      | Type    | Required | Description                                                 |
+        |-----------|---------|----------|-------------------------------------------------------------|
+        | userid    | string  | Yes      | SS14 UserId of the player to check                          |
+        | api_token | string  | Yes      | Api Token of the app for security                           |
+        | method    | string  | Yes      | SS14 or Discord, influence on what id server is waiting for |
+        | given     | integer | Yes      | Flag itself, between 0 and 1                                |
    **Response:**  
    Status Code: OK(200)
 
    
-7. **Wipe Given**
+8. **Wipe Given**
     - `POST /api/wipe_given`
     - **Description:** Sets all given flags to 0, for all users
     - **Query Parameters:**
