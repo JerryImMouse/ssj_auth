@@ -7,7 +7,7 @@ const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
 const CacheManager = require("../utilities/cache_managing");
 const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
-    getUserById, getUserBySS14Id } = require('../database/sqlite');
+    getUserBySS14Id } = require('../database/sqlite');
 
 const userCache = new CacheManager(cache_size);
 
@@ -37,8 +37,8 @@ router.get("/check", async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "No user found" });
         }
-
-        userCache.set(req.query.userid, user);
+        if (use_caching)
+            userCache.set(req.query.userid, user);
         const { id, access_token, refresh_token, ...safeUser } = user;
         return res.status(200).json(safeUser);
     }
@@ -116,10 +116,20 @@ router.get('/user', async (req, res) => {
         return res.status(400).json({error: "Method is not provided"})
     }
 
+
     if (!req.query.id) {
         return res.status(400).json({ error: "No user ID provided" });
     }
     const uid = req.query.id;
+
+    if (use_caching && req.query.method === 'ss14') {
+        const user = userCache.get(uid);
+        if (user != null) {
+            logger.info(`Found user cache for ${uid}`);
+            const { id, access_token, refresh_token, ...safeUser } = user;
+            return res.status(200).json(safeUser);
+        }
+    }
 
     let user;
 
@@ -130,6 +140,8 @@ router.get('/user', async (req, res) => {
         }
         case 'ss14': {
             user = await getUserBySS14Id(uid);
+            if (use_caching)
+                userCache.set(uid, user);
             break;
         }
         default:
@@ -140,7 +152,7 @@ router.get('/user', async (req, res) => {
         return res.status(400).json({error: "Not Found"});
     }
 
-    const {access_token, refresh_token, ...newUser} = user;
+    const {id, access_token, refresh_token, ...newUser} = user;
 
     return res.status(200).json(newUser);
 })
