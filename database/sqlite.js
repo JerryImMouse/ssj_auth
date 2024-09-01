@@ -15,6 +15,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const dbInit = () => {
     createUsersTable();
     createGivenTable();
+    createIndexes();
 };
 
 const createUsersTable = () => {
@@ -60,6 +61,21 @@ const createGivenTable = () => {
         logger.info('Given table created successfully');
     })
 };
+
+const createIndexes = () => {
+    const createSS14UserIdIndexSQL = `
+  CREATE UNIQUE INDEX IF NOT EXISTS "IX_users_ss14_userid" 
+  ON "users" ("ss14_userid");
+`;
+
+    db.run(createSS14UserIdIndexSQL, (err) => {
+        if (err) {
+            logger.error(`Error creating index on table: ${err.message}`);
+            return;
+        }
+        logger.info(`Indexes created successfully`);
+    })
+}
 
 const insertUser = async (discord_name, discord_id, ss14_userid, refresh_token, access_token, last_refreshed_time) => {
     const insertSQL = `
