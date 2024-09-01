@@ -2,14 +2,14 @@ const router = require("express").Router();
 const path = require('path');
 
 const logger = require('../utilities/logger.js');
-const {insertUser, insertGivenUser} = require('../database/sqlite.js');
+const {insertUser, insertGivenUser, getUserByDiscordId} = require('../database/sqlite.js');
 const {exchangeCode, getDiscordIdentifyScopeUnsafe} = require("../utilities/discordhelper");
 
 router.get('/callback', async (req, res) => {
     logger.info(`GET /callback. Got callback with code: ${req.query.code}`);
 
     if (!req.query.state) {
-        res.sendFile(__dirname + '/../public/html/error.html');
+        res.sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
         return;
     }
     const base64Userid = req.query.state;
@@ -26,6 +26,13 @@ router.get('/callback', async (req, res) => {
     if (!userObject) {
         logger.error("Unable to get identify scope");
         res.sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        return;
+    }
+
+    const fetched = await getUserByDiscordId(userObject.user.id);
+    if (fetched) {
+        res.sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
         return;
     }
 
