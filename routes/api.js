@@ -6,7 +6,8 @@ const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
 const CacheManager = require("../utilities/cache_managing");
-const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll} = require("../database/sqlite");
+const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
+    getUserById, getUserBySS14Id } = require('../database/sqlite');
 
 const userCache = new CacheManager(cache_size);
 
@@ -104,6 +105,46 @@ router.get('/roles', async (req, res) => {
     }
 })
 
+router.get('/user', async (req, res) => {
+    if (!req.query.api_token)
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!checkAccess(req.query.api_token))
+        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+
+    if (!req.query.method) {
+        return res.status(400).json({error: "Method is not provided"})
+    }
+
+    if (!req.query.id) {
+        return res.status(400).json({ error: "No user ID provided" });
+    }
+    const uid = req.query.id;
+
+    let user;
+
+    switch (req.query.method) {
+        case 'discord': {
+            user = await getUserByDiscordId(uid);
+            break;
+        }
+        case 'ss14': {
+            user = await getUserBySS14Id(uid);
+            break;
+        }
+        default:
+            return res.status(400).json({error: "Invalid method passed"});
+    }
+
+    if (!user) {
+        return res.status(400).json({error: "Not Found"});
+    }
+
+    const {access_token, refresh_token, ...newUser} = user;
+
+    return res.status(200).json(newUser);
+})
+
 router.post('/given', async (req, res) => {
     if (!req.query.api_token)
         return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
@@ -114,17 +155,33 @@ router.post('/given', async (req, res) => {
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
 
-    if (!req.query.userid) {
+    if (!req.query.method) {
+        return res.status(400).json({error: "Method is not provided"})
+    }
+
+    if (!req.query.id) {
         return res.status(400).json({ error: "No user ID provided" });
     }
+    const uid = req.query.id;
+
+
     let given = 1;
     if (req.query.given) {
         given = req.query.given;
     }
 
-    const user_id = req.query.userid;
-
-    await setGivenTo(user_id, given);
+    switch (req.query.method) {
+        case 'discord': {
+            await setGivenDiscordTo(uid, given);
+            break;
+        }
+        case 'ss14': {
+            await setGivenTo(uid, given);
+            break;
+        }
+        default:
+            return res.status(400).json({ error: "Invalid method provided" });
+    }
 
     return res.status(200).send("SUCCESS");
 })
@@ -139,15 +196,32 @@ router.get('/is_given', async (req, res) => {
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
 
-    if (!req.query.userid) {
-        return res.status(400).json({ error: "No user ID provided" });
+    if (!req.query.method) {
+        return res.status(400).json({error: "Method is not provided"})
     }
 
-    const user_id = req.query.userid;
+    if (!req.query.id) {
+        return res.status(400).json({ error: "No user ID provided" });
+    }
+    const uid = req.query.id;
 
-    const user = await getGivenBySS14Id(user_id);
+    let user;
 
-    var status = user.is_given === 1 ? 200 : 204;
+    switch (req.query.method) {
+        case 'discord': {
+            user = await getGivenByDiscordId(uid);
+            break;
+        }
+        case 'ss14': {
+            user = await getGivenBySS14Id(uid);
+            break;
+        }
+        default: {
+            return res.status(400).json({ error: "Invalid method provided" });
+        }
+    }
+
+    const status = user.is_given === 1 ? 200 : 204;
     res.status(status).send("SUCCESS");
 })
 

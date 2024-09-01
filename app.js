@@ -7,7 +7,6 @@ const path = require('path');
 const compression = require("compression");
 const helmet = require("helmet");
 
-const indexRouter = require('./routes/index.js');
 const apiRouter = require('./routes/api.js');
 const authRouter = require('./routes/auth.js');
 
@@ -38,7 +37,6 @@ app.use(bodyParser.json())
 app.use(morgan('combined'))
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
 app.use('/api/', apiRouter)
 app.use('/auth/', authRouter);
 
