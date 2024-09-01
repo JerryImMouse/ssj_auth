@@ -12,9 +12,10 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-const dbInit = () => {
+const dbInit = (use_given = false) => {
     createUsersTable();
-    createGivenTable();
+    if (use_given)
+        createGivenTable();
     createIndexes();
 };
 

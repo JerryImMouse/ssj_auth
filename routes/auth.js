@@ -3,6 +3,7 @@ const path = require('path');
 
 const logger = require('../utilities/logger.js');
 const {insertUser, insertGivenUser, getUserByDiscordId} = require('../database/sqlite.js');
+const {use_given} = require('../configuration/config')
 const {exchangeCode, getDiscordIdentifyScopeUnsafe} = require("../utilities/discordhelper");
 
 router.get('/callback', async (req, res) => {
@@ -38,7 +39,9 @@ router.get('/callback', async (req, res) => {
 
     logger.info(`Successfully exchanged user object: ${JSON.stringify(userObject)}`);
 
-    const result = await insertUser(
+    let result, result1;
+
+    result = await insertUser(
         userObject.user.username, // discord_username
         userObject.user.id, // discord_id
         userid, // user_id
@@ -47,9 +50,11 @@ router.get('/callback', async (req, res) => {
         new Date().toISOString()); // current date time
     logger.info(`Added new user with userid - ${userid}`);
 
-    const result1 = await insertGivenUser(userObject.user.id, userid, 0);
+    if (use_given) {
+        result1 = await insertGivenUser(userObject.user.id, userid, 0);
+    }
 
-    if (result && result1) {
+    if (result && (!use_given || result1)) {
         res.sendFile(path.join(__dirname, '..', 'public', 'html', 'success.html'));
         return;
     }
