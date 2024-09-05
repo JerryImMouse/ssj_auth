@@ -1,13 +1,14 @@
 const router = require("express").Router();
 const database = require("../database/sqlite");
 const logger = require("../utilities/logger");
-const {discordLinkTemplate, clientId, redirectUri, use_caching, cache_size, use_given_table} = require("../configuration/config");
+const {discordLinkTemplate, clientId, redirectUri, use_caching, cache_size, use_given_table, checkGuild, guildId} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
 const {checkAccess} = require("../utilities/tokenutils");
 const path = require("path");
 const CacheManager = require("../utilities/cache_managing");
 const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
     getUserBySS14Id } = require('../database/sqlite');
+const {checkInGuild} = require("../utilities/discordhelper");
 
 const userCache = new CacheManager(cache_size);
 
@@ -37,6 +38,10 @@ router.get("/check", async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "No user found" });
         }
+        if (checkGuild && !await checkInGuild(req.query.userid, guildId)) {
+            return res.status(404).json({ error: "User is not in our guild"});
+        }
+
         if (use_caching)
             userCache.set(req.query.userid, user);
         const { id, access_token, refresh_token, ...safeUser } = user;
