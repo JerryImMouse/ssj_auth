@@ -10,7 +10,7 @@ router.get('/callback', async (req, res) => {
     logger.info(`GET /callback. Got callback with code: ${req.query.code}`);
 
     if (!req.query.state) {
-        res.status(400).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        res.status(400).render('error', {title: "Client Error", errorText: "400 - Bad Request", errorDesc: "There was no state passed."});
         return;
     }
     const base64Userid = req.query.state;
@@ -19,20 +19,20 @@ router.get('/callback', async (req, res) => {
     const tokenData = await exchangeCode(req.query.code);
     if (!tokenData) {
         logger.error("Unable to get token");
-        res.status(500).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to exchange code with discord."});
         return;
     }
 
     const userObject = await getDiscordIdentifyScopeUnsafe(tokenData['access_token']);
     if (!userObject) {
         logger.error("Unable to get identify scope");
-        res.status(500).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to get identify scope from discord."});
         return;
     }
 
     const fetched = await getUserByDiscordId(userObject.user.id);
     if (fetched) {
-        res.status(409).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+        res.status(409).render('error', {title: "Server Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different Discord account."});
         logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
         return;
     }
@@ -59,7 +59,7 @@ router.get('/callback', async (req, res) => {
         return;
     }
 
-    res.status(500).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+    res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Reached probably unreachable code. Address the issue to developer"});
 });
 
 module.exports = router;

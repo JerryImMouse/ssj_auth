@@ -16,6 +16,8 @@ const app = express();
 
 app.set("trust proxy", 1);
 
+app.set('view engine', 'pug')
+
 app.use(compression()); // Compress all routes
 app.use(
     helmet({

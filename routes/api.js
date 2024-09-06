@@ -14,10 +14,10 @@ const userCache = new CacheManager(cache_size);
 
 router.get("/check", async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user id provided" });
@@ -57,10 +57,10 @@ router.get("/check", async (req, res) => {
 // generate auth link
 router.get('/link', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
@@ -77,10 +77,10 @@ router.get('/link', async (req, res) => {
 
 router.get('/roles', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
@@ -112,10 +112,10 @@ router.get('/roles', async (req, res) => {
 
 router.get('/user', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!req.query.method) {
         return res.status(400).json({error: "Method is not provided"})
@@ -164,10 +164,10 @@ router.get('/user', async (req, res) => {
 
 router.post('/given', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized");
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized");
 
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
@@ -205,10 +205,10 @@ router.post('/given', async (req, res) => {
 
 router.get('/is_given', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
@@ -244,10 +244,10 @@ router.get('/is_given', async (req, res) => {
 
 router.post('/wipe_given', async (req, res) => {
     if (!req.query.api_token)
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!checkAccess(req.query.api_token))
-        return res.status(401).sendFile(path.join(__dirname, '..', 'public', 'html', 'unauthorized.html'));
+        return res.status(401).send("Unauthorized")
 
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
