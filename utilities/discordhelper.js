@@ -49,6 +49,30 @@ const getGuildMemberRoles = async (userId,guild_id) => {
     return await res.json();
 }
 
+const checkInGuild = async (userId, guild_id) => {
+    if (!await checkTokenValid(userId, false)) {
+        logger.error('Unable to refresh token');
+        return;
+    }
+
+    const user = await getUserBySS14Id(userId);
+
+    const res = await fetch(`${discordEndPoint}/users/@me/guilds`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${user.access_token}`
+        }
+    })
+
+    if (!res.ok) {
+        return false;
+    }
+
+    const guilds = await res.json();
+
+    return guilds.some(guild => guild.id === guild_id);
+}
+
 const exchangeCode = async(code) => {
     const params = new URLSearchParams();
     params.append('grant_type', 'authorization_code');
@@ -132,5 +156,6 @@ module.exports = {
     getDiscordIdentifyScope,
     exchangeCode,
     getGuildMemberRoles,
-    getDiscordIdentifyScopeUnsafe
+    getDiscordIdentifyScopeUnsafe,
+    checkInGuild
 }

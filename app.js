@@ -47,5 +47,5 @@ app.listen(config.port, config.host, () => {
         logger.info('Running in development mode');
     }
     logger.info(`App listening on ${config.host}:${config.port}`);
-    sqliteDb.dbInit();
+    sqliteDb.dbInit(config.use_given_table);
 });
