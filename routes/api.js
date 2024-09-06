@@ -238,6 +238,13 @@ router.get('/is_given', async (req, res) => {
         }
     }
 
+    // this one shouldn't happen
+    if (!user) {
+        logger.error("There was an error retrieving given user. Returned 1 by default");
+        res.status(200).send("Doubtful But Okay");
+        return;
+    }
+
     const status = user.is_given === 1 ? 200 : 204;
     res.status(status).send("SUCCESS");
 })
