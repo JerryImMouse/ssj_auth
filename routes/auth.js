@@ -29,11 +29,16 @@ router.get('/callback', async (req, res) => {
         res.status(500).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
         return;
     }
-
-    const fetched = await getUserByDiscordId(userObject.user.id);
-    if (fetched) {
-        res.status(409).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
-        logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+    try {
+        const fetched = await getUserByDiscordId(userObject.user.id);
+        if (fetched) {
+            res.status(409).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
+            logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+            return;
+        }
+    } catch (error) {
+        logger.error(`Error fetching user by Discord ID: ${error.message}`);
+        res.status(500).sendFile(path.join(__dirname, '..', 'public', 'html', 'error.html'));
         return;
     }
 
