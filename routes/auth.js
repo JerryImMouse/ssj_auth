@@ -29,11 +29,17 @@ router.get('/callback', async (req, res) => {
         res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to get identify scope from discord."});
         return;
     }
-
-    const fetched = await getUserByDiscordId(userObject.user.id);
-    if (fetched) {
-        res.status(409).render('error', {title: "Server Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different Discord account."});
-        logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+  
+    try {
+        const fetched = await getUserByDiscordId(userObject.user.id);
+        if (fetched) {
+            res.status(409).render('error', {title: "Server Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different Discord account."});
+            logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+            return;
+        }
+    } catch (error) {
+        logger.error(`Error fetching user by Discord ID: ${error.message}`);
+        res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to check existance."});
         return;
     }
 
