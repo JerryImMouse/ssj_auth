@@ -1,6 +1,11 @@
 const {cache_update_timeout} = require('../configuration/config')
 const logger = require('./logger')
 
+const getUser = (cache, key) => {
+    const user = cache.get(key);
+
+}
+
 class CacheManager {
     constructor(maxSize = 5) {
         this.cacheMap = {};

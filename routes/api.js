@@ -3,8 +3,7 @@ const database = require("../database/sqlite");
 const logger = require("../utilities/logger");
 const {discordLinkTemplate, clientId, redirectUri, use_caching, cache_size, use_given_table, checkGuild, guildId} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
-const {checkAccess} = require("../utilities/tokenutils");
-const path = require("path");
+const {validateToken} = require("../utilities/tokenutils");
 const CacheManager = require("../utilities/cache_managing");
 const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
     getUserBySS14Id } = require('../database/sqlite');
@@ -12,16 +11,11 @@ const {checkInGuild} = require("../utilities/discordhelper");
 
 const userCache = new CacheManager(cache_size);
 
+router.use(validateToken);
+
 router.get("/check", async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
-    if (!req.query.userid) {
+    if (!req.query.userid)
         return res.status(400).json({ error: "No user id provided" });
-    }
 
     if (use_caching) {
         const user = userCache.get(req.query.userid);
@@ -56,12 +50,6 @@ router.get("/check", async (req, res) => {
 
 // generate auth link
 router.get('/link', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
     if (!req.query.userid) {
         return res.status(400).json({ error: "No user ID provided" });
     }
@@ -76,15 +64,8 @@ router.get('/link', async (req, res) => {
 });
 
 router.get('/roles', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
-    if (!req.query.userid) {
+    if (!req.query.userid)
         return res.status(400).json({ error: "No user ID provided" });
-    }
 
     if (!req.query.guildid) {
         return res.status(400).json({error: 'No guild ID provided'});
@@ -111,20 +92,13 @@ router.get('/roles', async (req, res) => {
 })
 
 router.get('/user', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
-    if (!req.query.method) {
-        return res.status(400).json({error: "Method is not provided"})
-    }
-
+    if (!req.query.method)
+        return res.status(400).json({error: "Method is not provided"});
 
     if (!req.query.id) {
         return res.status(400).json({ error: "No user ID provided" });
     }
+
     const uid = req.query.id;
 
     if (use_caching && req.query.method === 'ss14') {
@@ -154,7 +128,7 @@ router.get('/user', async (req, res) => {
     }
 
     if (!user) {
-        return res.status(400).json({error: "Not Found"});
+        return res.status(404).json({ error: 'User not found' });
     }
 
     const {id, access_token, refresh_token, ...newUser} = user;
@@ -163,12 +137,6 @@ router.get('/user', async (req, res) => {
 })
 
 router.post('/given', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized");
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized");
-
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
 
@@ -204,12 +172,6 @@ router.post('/given', async (req, res) => {
 })
 
 router.get('/is_given', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
 
@@ -250,12 +212,6 @@ router.get('/is_given', async (req, res) => {
 })
 
 router.post('/wipe_given', async (req, res) => {
-    if (!req.query.api_token)
-        return res.status(401).send("Unauthorized")
-
-    if (!checkAccess(req.query.api_token))
-        return res.status(401).send("Unauthorized")
-
     if (!use_given_table)
         return res.status(405).send("Given table is turned off")
 

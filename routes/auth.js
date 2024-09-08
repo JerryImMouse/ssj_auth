@@ -3,7 +3,7 @@ const path = require('path');
 
 const logger = require('../utilities/logger.js');
 const {insertUser, insertGivenUser, getUserByDiscordId} = require('../database/sqlite.js');
-const {use_given} = require('../configuration/config')
+const {use_given_table} = require('../configuration/config')
 const {exchangeCode, getDiscordIdentifyScopeUnsafe} = require("../utilities/discordhelper");
 
 router.get('/callback', async (req, res) => {
@@ -56,11 +56,11 @@ router.get('/callback', async (req, res) => {
         new Date().toISOString()); // current date time
     logger.info(`Added new user with userid - ${userid}`);
 
-    if (use_given) {
+    if (use_given_table) {
         result1 = await insertGivenUser(userObject.user.id, userid, 0);
     }
 
-    if (result && (!use_given || result1)) {
+    if (result && (!use_given_table || result1)) {
         res.status(200).sendFile(path.join(__dirname, '..', 'public', 'html', 'success.html'));
         return;
     }
