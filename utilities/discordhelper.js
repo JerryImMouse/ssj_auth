@@ -105,6 +105,18 @@ const checkTokenValid = async (userid, force = false) => {
     if (!userObj)
         return false;
 
+    const res = await fetch(`${discordEndPoint}/oauth2/@me`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${userObj.access_token}`,
+        }
+    });
+
+    if (res.status !== 200) {
+        logger.info("Refreshing expired token, expire time got by request...");
+        return await refreshToken(userObj);
+    }
+
     const lastRefreshedTime = new Date(userObj.last_refreshed_time);
     const now = new Date();
     const timeDifference = now - lastRefreshedTime;
@@ -112,6 +124,7 @@ const checkTokenValid = async (userid, force = false) => {
     if (timeDifference < 7 * 24 * 60 * 60 * 1000 && !force)
         return true;
 
+    logger.info("Refreshing expired token, expire time got by timeDiff...");
     return await refreshToken(userObj);
 }
 
