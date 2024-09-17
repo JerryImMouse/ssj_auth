@@ -1,12 +1,14 @@
 const router = require("express").Router();
 const database = require("../database/sqlite");
 const logger = require("../utilities/logger");
-const {discordLinkTemplate, clientId, redirectUri, use_caching, cache_size, use_given_table, checkGuild, guildId} = require("../configuration/config");
+const {discordLinkTemplate, clientId, redirectUri, use_caching, cache_size, use_given_table, checkGuild, guildId,
+    deletionAllowed
+} = require("../configuration/config");
 const dHelper = require("../utilities/discordhelper");
 const {validateToken} = require("../utilities/tokenutils");
 const CacheManager = require("../utilities/cache_managing");
 const {setGivenTo, getGivenBySS14Id, setGivenToZeroAll, setGivenDiscordTo, getGivenByDiscordId, getUserByDiscordId,
-    getUserBySS14Id } = require('../database/sqlite');
+    getUserBySS14Id, deleteGivenByDiscordId, deleteGivenBySS14Uid, deleteUserBySS14Uid, deleteUserByDiscordId } = require('../database/sqlite');
 const {checkInGuild} = require("../utilities/discordhelper");
 
 const userCache = new CacheManager(cache_size);
@@ -134,6 +136,41 @@ router.get('/user', async (req, res) => {
     const {id, access_token, refresh_token, ...newUser} = user;
 
     return res.status(200).json(newUser);
+})
+
+router.post('/delete', async (req, res) => {
+    if (!deletionAllowed)
+        return res.status(405).json({error: "Deletion is not allowed in SSJ configuration"});
+
+    if (!req.query.method)
+        return res.status(400).json({error: "Method is not provided"});
+
+    if (!req.query.id)
+        return res.status(400).json({error: "Id is not provided"});
+
+    const uid = req.query.id;
+    const method = req.query.method;
+
+    switch (method) {
+        case "discord": {
+            const usersDeletionResult = await deleteUserByDiscordId(uid);
+            const givenDeletionResult = await deleteGivenByDiscordId(uid);
+            if (!usersDeletionResult || !givenDeletionResult) {
+                logger.error(`Unable to delete some of the records by DiscordId(${uid}): Users: ${usersDeletionResult} | Given: ${givenDeletionResult}`);
+            }
+            break;
+        }
+        case "ss14": {
+            const usersDeletionResult = await deleteUserBySS14Uid(uid);
+            const givenDeletionResult = await deleteGivenBySS14Uid(uid);
+            if (!usersDeletionResult || !givenDeletionResult) {
+                logger.error(`Unable to delete some of the records by SS14Uid(${uid}): Users: ${usersDeletionResult} | Given: ${givenDeletionResult}`);
+            }
+            break;
+        }
+    }
+
+    return res.status(200).json({response: "OK"});
 })
 
 router.post('/given', async (req, res) => {
