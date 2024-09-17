@@ -111,6 +111,25 @@ This app also supports(of course it is) token refreshing, it checks if token val
    **Response:**  
    Status Code: OK(200)
 
+9. **Deletion**
+    - `POST /api/delete`
+    - **Description:** Should be self-explanatory, but this route is turned off by default, set `DELETION_ALLOWED` in .env file to enable it.
+    - **Query Parameters:**
+   
+      | Name      | Type   | Required | Description                       |
+      |-----------|--------|----------|-----------------------------------|
+      | id        | string | Yes      | Id depending on method field      |
+      | method    | string | Yes      | SS14 or Discord(ss14/discord)     |
+      | api_token | string | Yes      | Api Token of the app for security |
+    **Response:**
+    Status Code: OK(200)
+    ```json
+    {
+      "response": "OK"
+    }
+    ```
+    
+        
 ## Internal Routes
 1. **Callback Route**
     - `GET /auth/callback`
