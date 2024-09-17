@@ -20,6 +20,8 @@ const cache_update_timeout = parseInt(process.env.CACHE_UPDATE_TIMEOUT || '3600'
 const checkGuild = !!+process.env.IS_IN_GUILD;
 const guildId = process.env.GUILD_ID;
 
+const deletionAllowed = !!+process.env.DELETION_ALLOWED;
+
 module.exports = {
     port,
     host,
@@ -34,5 +36,6 @@ module.exports = {
     cache_size,
     cache_update_timeout,
     checkGuild,
-    guildId
+    guildId,
+    deletionAllowed,
 }

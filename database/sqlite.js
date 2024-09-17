@@ -186,17 +186,65 @@ const updateUserByDiscordId = async (id, discord_name, discord_id, ss14_userid, 
     })
 };
 
-const deleteUser = async (id) => {
-    const deleteSQL = `DELETE FROM users WHERE id = ?`;
-    await db.run(deleteSQL, [id], (err) => {
-        if (err) {
-            logger.error(`Caught error while deleting user from database: ${err.message}`);
-            return;
-        }
+const deleteUserBySS14Uid = async (uid) => {
+    const deleteSQL = `DELETE FROM users WHERE ss14_userid = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(deleteSQL, [uid], (err) => {
+            if (err) {
+                logger.error(`Caught error while deleting user from database: ${err.message}`);
+                reject(err);
+            }
 
-        logger.info("Successfully deleted user from database");
+            logger.info(`Deleted user by SS14 uid from database: ${uid}`);
+            resolve(true);
+        })
     });
-};
+}
+
+const deleteUserByDiscordId = async (d_id) => {
+    const deleteSQL = `DELETE FROM users WHERE discord_id = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(deleteSQL, [d_id], (err) => {
+            if (err) {
+                logger.error(`Caught error while deleting user from database: ${err.message}`);
+                reject(err);
+            }
+
+            logger.info(`Deleted user by DiscordId from database: ${d_id}`);
+            resolve(true);
+        })
+    });
+}
+
+const deleteGivenBySS14Uid = async (uid) => {
+    const deleteSQL = `DELETE FROM given WHERE ss14_user_id = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(deleteSQL, [uid], (err) => {
+            if (err) {
+                logger.error(`Caught error while deleting given from database: ${err.message}`);
+                reject(err);
+            }
+
+            logger.info(`Deleted given by SS14 uid from database: ${uid}`);
+            resolve(true);
+        })
+    });
+}
+
+const deleteGivenByDiscordId = async (d_id) => {
+    const deleteSQL = `DELETE FROM given WHERE discord_id = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(deleteSQL, [d_id], (err) => {
+            if (err) {
+                logger.error(`Caught error while deleting given from database: ${err.message}`);
+                reject(err);
+            }
+
+            logger.info(`Deleted given by DiscordId from database: ${d_id}`);
+            resolve(true);
+        })
+    });
+}
 
 const getAllGiven = async () => {
     const selectSQL = `SELECT * FROM given`;
@@ -328,7 +376,6 @@ const setGivenDiscordTo = async (discord_id, is_given) => {
 module.exports = {
     dbInit,
     insertUser,
-    deleteUser,
     updateUserById,
     updateUserByDiscordId,
     getUserById,
@@ -343,5 +390,10 @@ module.exports = {
     insertGivenUser,
     setGivenToZeroAll,
     setGivenTo,
-    setGivenDiscordTo
+    setGivenDiscordTo,
+
+    deleteGivenBySS14Uid,
+    deleteGivenByDiscordId,
+    deleteUserByDiscordId,
+    deleteUserBySS14Uid
 }
