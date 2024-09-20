@@ -35,7 +35,7 @@ router.get("/check", async (req, res) => {
             return res.status(404).json({ error: "No user found" });
         }
         if (checkGuild && !await checkInGuild(req.query.userid, guildId)) {
-            return res.status(404).json({ error: "User is not in our guild"});
+            return res.status(405).json({ error: "User is not in our guild"});
         }
 
         if (use_caching)
