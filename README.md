@@ -153,6 +153,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
 ## Docker Support
 This app also supports docker, to set it up you just need to clone this repository and build this image by yourself using:
 ```bash
+git checkout dockerize # docker support is on other branch
 docker build -t ssj_auth .
 ```
 or pull already built one with:
