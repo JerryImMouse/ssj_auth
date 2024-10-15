@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const logger = require('../utilities/logger.js');
 
-const dbPath = path.resolve(__dirname, 'database.db');
+const dbPath = path.resolve(__dirname, '..', 'assets', 'database.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -18,6 +18,10 @@ const dbInit = (use_given = false) => {
         createGivenTable();
     createIndexes();
 };
+
+const dbClose = () => {
+    db.close();
+}
 
 const createUsersTable = () => {
     const createTableSQL = `
@@ -375,6 +379,8 @@ const setGivenDiscordTo = async (discord_id, is_given) => {
 
 module.exports = {
     dbInit,
+    dbClose,
+
     insertUser,
     updateUserById,
     updateUserByDiscordId,

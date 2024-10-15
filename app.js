@@ -42,12 +42,34 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/', apiRouter)
 app.use('/auth/', authRouter);
 
-app.listen(config.port, config.host, () => {
+const server = app.listen(config.port, () => {
     if (process.env.NODE_ENV === 'production') {
         logger.info('Running in production mode');
     } else {
         logger.info('Running in development mode');
     }
-    logger.info(`App listening on ${config.host}:${config.port}`);
+    logger.info(`App listening on ${config.port}`);
     sqliteDb.dbInit(config.use_given_table);
+});
+
+process.once("SIGTERM", () => {
+    process.statusCode = 1;
+    console.log("Received SIGTERM");
+    server.close(() => {
+        logger.info("Express server stopped");
+        sqliteDb.dbClose();
+        logger.info("DB connection closed");
+    });
+    process.exit(1);
+});
+
+process.once("SIGINT", () => {
+    process.statusCode = 1;
+    console.log("Received SIGINT");
+    server.close(() => {
+        logger.info("Express server stopped");
+        sqliteDb.dbClose();
+        logger.info("DB connection closed");
+    });
+    process.exit(1);
 });

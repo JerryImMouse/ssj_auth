@@ -11,11 +11,20 @@ class CacheManager {
         this.cacheMap = {};
         this.order = [];
         this.maxSize = maxSize;
-
-        setInterval(() => {
+        this.startCacheClear();
+    }
+    
+    startCacheClear() {
+        const cache_update_timeout = parseInt(process.env.CACHE_UPDATE_TIMEOUT, 10) || 3600;
+    
+        const clearCache = () => {
             this.clear();
-            logger.info('CacheManager cache cleared');
-        }, cache_update_timeout * 1000);
+            logger.info(`CacheManager cache cleared, timeout: ${cache_update_timeout} seconds`);
+            
+            setTimeout(clearCache, cache_update_timeout * 1000);
+        };
+    
+        setTimeout(clearCache, cache_update_timeout * 1000);
     }
 
     set(key, value) {
