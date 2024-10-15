@@ -1,4 +1,13 @@
 # SS14 Jerry Auth
+## Table of Contents
+1. [Technical Details](#technical-details)
+2. [Routes](#routes)
+3. [Internal Routes](#internal-routes)
+4. [Docker Support](#docker-support)
+5. [Deploying](#deploying)
+6. [Roadmap](#roadmap)
+
+
 This tool provides easy-to-use interface to connect discord account with Space Station 14 account.
 
 > [!NOTE]
@@ -140,6 +149,57 @@ This app also supports(of course it is) token refreshing, it checks if token val
      |-----------|--------|----------|-----------------------------------------------------|
      | state     | string | Yes      | To be decoded from base64 and represented as userid |
      | code      | string | Yes      | Discord code to exchange                            |
+
+## Docker Support
+This app also supports docker, to set it up you just need to clone this repository and build this image by yourself using:
+```bash
+git checkout dockerize # docker support is on other branch
+docker build -t ssj_auth .
+```
+or pull already built one with:
+```bash
+docker pull jerryimmouse/ssj_auth
+```
+
+Then you'll need to run this image with the following template:
+```dotenv
+CLIENT_API_PORT=2424
+
+NODE_ENV=production
+
+API_KEY=TOKEN
+DISCORD_API_ENDPOINT=https://discord.com/api/v10
+CLIENT_ID=CLIENTID
+CLIENT_SECRET=CLIENT_SECRET
+REDIRECT_URI=http://127.0.0.1:2424/auth/callback
+DISCORD_AUTH_LINK_TEMPLATE=https://discord.com/oauth2/authorize
+
+USE_GIVEN=0
+USE_CACHE=1
+CACHE_MAX_SIZE=100
+CACHE_UPDATE_TIMEOUT=3600
+IS_IN_GUILD=1
+GUILD_ID=GUILD_ID
+
+DELETION_ALLOWED=0 # 0/1
+```
+
+Also you'd like to expose database file via
+```bash
+docker run -v /path/on/hostMachine/:/usr/src/ssj/assets/ jerryimmouse/ssj_auth
+```
+This command will create a symlink to assets folder of the container to `hostMachine` folder
+
+The full command to run this image can be like this
+```bash
+docker run \
+  --name ssj \
+  -d \
+  -p 2424:2424 \
+  -v ./docker-files:/usr/src/ssj/assets \
+  --env-file .env \
+  jerryimmouse/ssj_auth
+```
 
 ## Deploying
 > [!IMPORTANT]  
