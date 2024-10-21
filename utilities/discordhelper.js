@@ -113,8 +113,15 @@ const checkTokenValid = async (userid, force = false) => {
     });
 
     if (res.status !== 200) {
-        logger.info("Refreshing expired token, expire time got by request...");
-        return await refreshToken(userObj);
+        const data = await res.json();
+
+        if (data.code && data.code === 40002) {
+            logger.error("Account confirmation required.");
+            return true;
+        } else {
+            logger.info("Refreshing expired token, expire time got by request...");
+            return await refreshToken(userObj);
+        }
     }
 
     const lastRefreshedTime = new Date(userObj.last_refreshed_time);
