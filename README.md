@@ -1,13 +1,4 @@
 # SS14 Jerry Auth
-## Table of Contents
-1. [Technical Details](#technical-details)
-2. [Routes](#routes)
-3. [Internal Routes](#internal-routes)
-4. [Docker Support](#docker-support)
-5. [Deploying](#deploying)
-6. [Roadmap](#roadmap)
-
-
 This tool provides easy-to-use interface to connect discord account with Space Station 14 account.
 
 > [!NOTE]
@@ -153,6 +144,7 @@ This app also supports(of course it is) token refreshing, it checks if token val
 ## Docker Support
 This app also supports docker, to set it up you just need to clone this repository and build this image by yourself using:
 ```bash
+git checkout dockerize # docker support is on other branch
 docker build -t ssj_auth .
 ```
 or pull already built one with:
