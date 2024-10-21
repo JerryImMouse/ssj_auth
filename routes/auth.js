@@ -5,6 +5,7 @@ const logger = require('../utilities/logger.js');
 const {insertUser, insertGivenUser, getUserByDiscordId} = require('../database/sqlite.js');
 const {use_given_table} = require('../configuration/config')
 const {exchangeCode, getDiscordIdentifyScopeUnsafe} = require("../utilities/discordhelper");
+const {getUserBySS14Id} = require("../database/sqlite");
 
 router.get('/callback', async (req, res) => {
     logger.info(`GET /callback. Got callback with code: ${req.query.code}`);
@@ -29,17 +30,25 @@ router.get('/callback', async (req, res) => {
         res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to get identify scope from discord."});
         return;
     }
-  
+
     try {
-        const fetched = await getUserByDiscordId(userObject.user.id);
-        if (fetched) {
-            res.status(409).render('error', {title: "Server Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different Discord account."});
-            logger.info(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+        const discordGot = await getUserByDiscordId(userObject.user.id);
+        if (discordGot) {
+            res.status(409).render('error', {title: "Client Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different Discord account."});
+            logger.warn(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
+            return;
+        }
+
+        const ss14Got = await getUserBySS14Id(userid);
+        if (ss14Got) {
+            res.status(409).render('error', {title: "Client Error", errorText: "409 - Conflict", errorDesc: "You are already authorized, possibly with a different SS14 Account.\n" +
+                    "I dunno how this shit can possibly happen, this shit is shit and should be fixed by developer below."});
+            logger.warn(`Declining already existed auth entry from ${userObject.user.id} | ${userid}`);
             return;
         }
     } catch (error) {
-        logger.error(`Error fetching user by Discord ID: ${error.message}`);
-        res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to check existance."});
+        logger.error(`Error fetching user by ID: ${error.message}`);
+        res.status(500).render('error', {title: "Server Error", errorText: "500 - Internal Server Error", errorDesc: "Unable to check uniqueness."});
         return;
     }
 
