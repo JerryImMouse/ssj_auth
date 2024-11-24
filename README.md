@@ -1,4 +1,9 @@
 # SS14 Jerry Auth
+
+
+> [!WARNING]
+> This project is no longer maintained, consider using [TypeAuthD](https://github.com/JerryImMouse/typeauthd) as a replacement
+
 ## Table of Contents
 1. [Technical Details](#technical-details)
 2. [Routes](#routes)
